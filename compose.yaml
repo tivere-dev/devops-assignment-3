@@ -1,0 +1,15 @@
+# Local development with Docker Compose.
+#
+#   docker compose build
+#   docker compose run --rm devops-tool system-info
+#   docker compose run --rm devops-tool check-port example.com 443
+#   docker compose config        # validate this file
+#
+# The service is a one-shot CLI, so start it with `run` rather than `up`.
+services:
+  devops-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devops-tool:latest
+    command: ["help"]
