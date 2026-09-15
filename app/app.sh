@@ -219,7 +219,6 @@ cmd_check_host() {
         print_row "Ping" "reachable"
         echo "RESULT: OK"
         return 0
-    fi
     print_row "Ping" "no reply (host down or ICMP filtered)"
     echo "RESULT: FAILED (unreachable)"
     return 1
