@@ -60,7 +60,10 @@ smoke "invalid command fails with exit 2" 2 invalid-command
 smoke "missing command fails with exit 2" 2 ""
 smoke "check-port rejects a bad port" 2 check-port localhost abc
 
-if docker run --rm "$IMAGE" system-info 2>&1 | grep -qi 'kernel'; then
+# Capture first, then match: piping into grep -q would trip pipefail when grep
+# exits early and the producer receives SIGPIPE.
+info_output=$(docker run --rm "$IMAGE" system-info 2>&1)
+if [[ "$info_output" =~ [Kk]ernel ]]; then
     pass "system-info output contains kernel information"
 else
     fail "system-info output lacks kernel information"

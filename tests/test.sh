@@ -45,7 +45,7 @@ expect_exit() {
 expect_output() {
     # expect_output <description> <regex>  -- inspects the output of the last run_app
     local desc="$1" pattern="$2"
-    if printf '%s\n' "$last_output" | grep -Eqi -- "$pattern"; then
+    if grep -Eqi -- "$pattern" <<< "$last_output"; then
         pass "$desc"
     else
         fail "$desc (pattern '$pattern' not found)"
