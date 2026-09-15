@@ -163,14 +163,35 @@ run, and a test failure prevents the Docker image from being built.
 
 ## CI failure demonstration
 
-See the section at the end of this file; it is filled in with links to the actual
-workflow runs once the demonstration has been performed.
+The pipeline was deliberately broken and repaired on the branch `ci/failure-demo`
+(pull request [#1](https://github.com/tivere-dev/devops-assignment-3/pull/1)):
+
+1. **Break it** – commit `d346ad6` removed the closing `fi` from `cmd_check_host`
+   in `app/app.sh` and was pushed. Both the push run and the pull-request run
+   failed in the `validate` job: `bash -n` reported
+   `app/app.sh: line 225: syntax error near unexpected token '}'` and ShellCheck
+   flagged the same brace group. Because of `needs:`, the `test` and `docker` jobs
+   were skipped.
+   - push run: <https://github.com/tivere-dev/devops-assignment-3/actions/runs/35030571179> (failed)
+   - pull_request run: <https://github.com/tivere-dev/devops-assignment-3/actions/runs/35030579604> (failed)
+2. **Fix it** – commit `8676420` restored the missing `fi` and was pushed. All
+   three jobs passed on both events.
+   - push run: <https://github.com/tivere-dev/devops-assignment-3/actions/runs/35030676407> (passed)
+   - pull_request run: <https://github.com/tivere-dev/devops-assignment-3/actions/runs/35030680497> (passed)
+3. **Merge** – the pull request was merged into `main`; the final workflow run on
+   `main` passed: <https://github.com/tivere-dev/devops-assignment-3/actions/runs/35030774778>.
+
+An earlier, unplanned failure is also visible in the history: the very first run on
+`main` failed in the `docker` job because a smoke test piped `docker run` into
+`grep -q`, which trips `set -o pipefail` when grep exits early. It was fixed on the
+branch `fix/smoke-test-pipefail` (run 35030420795 passed after the merge). The
+`Actions` tab of the repository lists every run.
 
 ## Git workflow
 
 Development happened on feature branches (`feature/app`, `feature/quality-checks`,
-`feature/docker`, `feature/ci`) merged into `main` with merge commits, plus the
-`ci/failure-demo` branch used for the demonstration. `git log --oneline --graph --all`
+`feature/docker`, `feature/ci`, `fix/smoke-test-pipefail`) merged into `main` with
+merge commits, plus the `ci/failure-demo` branch used for the demonstration. `git log --oneline --graph --all`
 shows the history. Push all branches with `git push --all`.
 
 ## Assumptions
