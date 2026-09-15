@@ -1,0 +1,53 @@
+name: CI
+
+# Run on every push and every pull request so the failure demonstration and
+# regular development both go through the pipeline.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate (lint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure scripts are executable
+        run: chmod +x app/*.sh scripts/*.sh tests/*.sh
+
+      - name: Run lint checks (required files, bash -n, shellcheck)
+        run: ./scripts/lint.sh
+
+  test:
+    name: Test suite
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure scripts are executable
+        run: chmod +x app/*.sh scripts/*.sh tests/*.sh
+
+      - name: Run tests
+        run: ./tests/test.sh
+
+  docker:
+    name: Docker build and smoke tests
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure scripts are executable
+        run: chmod +x app/*.sh scripts/*.sh tests/*.sh
+
+      - name: Validate compose file
+        run: docker compose config
+
+      - name: Build image and run smoke tests
+        run: ./scripts/build.sh --clean
